@@ -1,0 +1,171 @@
+{
+    "hep-ph": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-ph9912397",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-ph9906463",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-ph9904270"
+    ],
+    "cond-mat": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cond-mat9911350",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cond-mat9807351",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cond-mat9806338"
+    ],
+    "hep-lat": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-lat9909162",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-lat9601029",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-lat9403003"
+    ],
+    "hep-th": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-th9907068",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-th9902029",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-th9805047"
+    ],
+    "astro-ph": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/astro-ph9906256",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/astro-ph9805129",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/astro-ph9708266"
+    ],
+    "math": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/math9805118",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/math9809138",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/math9903003"
+    ],
+    "gr-qc": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/gr-qc9803097",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/gr-qc9607016",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/gr-qc9508026"
+    ],
+    "nucl-th": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nucl-th9701043",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nucl-th9608008",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nucl-th9911059"
+    ],
+    ".": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/2505.24818",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/2505.11851",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/2505.05900"
+    ],
+    "hep-ex": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-ex9909028",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-ex9912063",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/hep-ex9811039"
+    ],
+    "patt-sol": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/patt-sol9704005",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/patt-sol9906009",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/patt-sol9806003"
+    ],
+    "alg-geom": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/alg-geom9703026",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/alg-geom9703024",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/alg-geom9708015"
+    ],
+    "physics": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/physics9610006",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/physics9801007",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/physics9901002"
+    ],
+    "quant-ph": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/quant-ph9503001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/quant-ph9804048",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/quant-ph9810052"
+    ],
+    "chao-dyn": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/chao-dyn9903022",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/chao-dyn9810025",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/chao-dyn9609003"
+    ],
+    "nucl-ex": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nucl-ex9806004",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nucl-ex9906013",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nucl-ex9706011"
+    ],
+    "mtrl-th": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/mtrl-th9503008",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/mtrl-th9603002",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/mtrl-th9508010"
+    ],
+    "adap-org": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/adap-org9602001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/adap-org9705003",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/adap-org9807004"
+    ],
+    "cs": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cs9902001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cs9901015",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cs9902011"
+    ],
+    "math-ph": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/math-ph9807038",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/math-ph9911024",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/math-ph9903037"
+    ],
+    "cmp-lg": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cmp-lg9607012",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cmp-lg9605013",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/cmp-lg9801003"
+    ],
+    "chem-ph": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/chem-ph9504001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/chem-ph9510002",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/chem-ph9602004"
+    ],
+    "dg-ga": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/dg-ga9701001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/dg-ga9704001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/dg-ga9708006"
+    ],
+    "supr-con": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/supr-con9606003",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/supr-con9506004",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/supr-con9607004"
+    ],
+    "solv-int": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/solv-int9601006",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/solv-int9812021",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/solv-int9501002"
+    ],
+    "q-alg": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/q-alg9511019",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/q-alg9503012",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/q-alg9505017"
+    ],
+    "acc-phys": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/acc-phys9505002",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/acc-phys9510001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/acc-phys9503001"
+    ],
+    "comp-gas": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/comp-gas9801001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/comp-gas9811001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/comp-gas9403004"
+    ],
+    "atom-ph": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/atom-ph9604007",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/atom-ph9509001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/atom-ph9603002"
+    ],
+    "ao-sci": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/ao-sci9502001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/ao-sci9510001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/ao-sci9504001"
+    ],
+    "plasm-ph": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/plasm-ph9607001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/plasm-ph9602001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/plasm-ph9502001"
+    ],
+    "funct-an": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/funct-an9608002",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/funct-an9706002",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/funct-an9612002"
+    ],
+    "bayes-an": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/bayes-an9609001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/bayes-an9504001",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/bayes-an9506001"
+    ],
+    "nlin": [
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nlin9904201",
+        "/RLS002/Public/arxiv/process_script/arxiv2markdown/output/nlin9907202"
+    ]
+}
