@@ -13,14 +13,17 @@ class TimeLogger:
     
     def log(self, ):
         duration = time.time() - self.start_time
-        self.avg_time = (self.avg_time * self.count + duration) / (self.count + 1)
+        spent_time = self.avg_time * self.count + duration
+        self.avg_time = spent_time / (self.count + 1)
         self.count += 1
         
         print(
             f"[File {self.count}] "
-            f"Last: {self._format_time(duration)} | "
-            f"Avg: {self._format_time(self.avg_time)}"
+            f"This: {self._format_time(duration)} | "
+            f"Avg: {self._format_time(self.avg_time)} | "
+            f"Lasted: {self._format_time(spent_time)}"
         )
+        self.start_time = time.time()
 
     @staticmethod
     def _format_time(seconds: float) -> str:

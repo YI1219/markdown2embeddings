@@ -4,3 +4,4 @@ model_download.sh
 /temp_files
 test*
 *.txt
+/log

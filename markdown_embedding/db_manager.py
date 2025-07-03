@@ -147,6 +147,65 @@ class VectorDatabaseManager:
             self.sqlite_conn.rollback()
             self.logger.error(f"添加文档失败: {str(e)}")
             raise
+    
+    def add_documents(self, docs, batch_size=32):
+        """
+        添加多个文档到数据库
+        """
+        try:
+            for index in range(0, len(docs), batch_size):
+                page_contents = [doc.page_content for doc in docs[index: index+batch_size]]
+                # 生成嵌入向量
+                embeddings = self.embedding_model.encode(page_contents, convert_to_numpy=True)
+
+                doc_table_list = []
+                for i in range(index, min(len(docs)-1, index+batch_size-1)):
+                    doc_table_list.append((docs[i].metadata['id'], docs[i].page_content, docs[i].metadata['file_path']))
+                
+                # 存储到SQLite
+                cursor = self.sqlite_conn.cursor()
+                cursor.executemany(
+                    "INSERT OR REPLACE INTO doc_table (id, text, file_path) VALUES (?, ?, ?)",
+                    doc_table_list,
+                )
+
+                metadata_table_list = []
+                for i in range(index, min(len(docs)-1, index+batch_size-1)):
+                    metadata_table_list.append((docs[i].metadata['id'], docs[i].metadata['file_id'], docs[i].metadata['publish_time'], 
+                    docs[i].metadata['title'], docs[i].metadata['author'], docs[i].metadata['dates'], 
+                    docs[i].metadata['keywords'], docs[i].metadata['acknowledgements'], 
+                    docs[i].metadata['raw_info'], str(docs[i].metadata['block_path'])))
+
+                cursor.executemany(
+                    """
+                    INSERT OR REPLACE INTO metadata_table 
+                    (doc_id, file_id, publish_time, title, author, 
+                    dates, keywords, acknowledgements, raw_info, block_path) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    metadata_table_list,
+                )
+
+                metadata_table_list = []
+                for i in range(index, min(len(docs)-1, index+batch_size-1)):
+                    metadata_table_list.append((docs[i].metadata['id'], embeddings[i-index].tobytes()))
+                
+                # 存储向量 (numpy数组转为bytes)
+                cursor.executemany(
+                    "INSERT OR REPLACE INTO embedding_table (doc_id, embedding) VALUES (?, ?)",
+                    metadata_table_list,
+                )
+
+                self.sqlite_conn.commit()
+                self.logger.info(f"文档 {docs[index].metadata['id']} 至 {docs[min(len(docs)-1, index+batch_size-1)].metadata['id']} 已保存到SQLite")
+            
+        except Exception as e:
+            print(index+batch_size)
+            self.sqlite_conn.rollback()
+            self.logger.error(f"添加文档失败: {str(e)}")
+            raise
+
+            
 
     def load_all_to_chroma(self):
         """将SQLite中的所有文档加载到Chroma"""
@@ -309,13 +368,16 @@ if __name__ == "__main__":
                 file_path = os.path.join(entry.path, arxiv_id+".md")
                 if os.path.exists(file_path):
                     print(f"Processing MD File {file_path}...")
-                    abs_chunks, body_chunks = splitter.process(file_path)
+                    try:
+                        abs_chunks, body_chunks = splitter.process(file_path)
+                    except:
+                        print(f"MD File {file_path} is Empty. Skipped.")
+                        continue
                     print(f"Chunk {file_path} OK")
 
                     # 3. 添加文档到数据库
                     print("Adding Document...")
-                    for doc in (abs_chunks + body_chunks):
-                        manager.add_document(doc)
+                    manager.add_documents((abs_chunks + body_chunks), 32)
                     print("All done")
                     logger.log()
 

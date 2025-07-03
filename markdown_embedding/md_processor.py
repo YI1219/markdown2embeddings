@@ -34,11 +34,11 @@ class MarkdownLinesDoc:
             if line.endswith("\\"):
                 temp_line += line.strip(" \\") + " "
             elif temp_line != "":
-                temp_line += line.strip()
+                temp_line += line
                 real_lines.append(temp_line)
                 temp_line = ""
             else:
-                real_lines.append(line.strip())
+                real_lines.append(line)
         self.content_lines = real_lines
     
     def __repr__(self, ):
@@ -74,75 +74,128 @@ class BlockSplitter(TextSplitter):
     
     def merge_or_split_blocks(self, blocks: List[MarkdownLinesDoc], extra_metadata: Dict={}) -> List[Document]:
         chunks = []
-        current_chunk = ""
+        current_chunk_lines = []  # 改用列表存储
         cur_metadata = {}
+        current_length = 0  # 跟踪当前长度
         index = 1
         
         for block in blocks:
             content = "\n".join(block.content_lines)
-            # 如果block本身超过最大长度，需要分割
-            if self._length_function(content) > self.max_chunk_length:
-                if current_chunk:  # 先把当前积累的chunk保存
-                    # 如果有 id，在后面加上序号
-                    save_metadata = extra_metadata
-                    if 'id' in save_metadata:
-                        save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
-                        index += 1
-                    chunks.append(Document(
-                        page_content=current_chunk,
-                        metadata=save_metadata | cur_metadata
-                    ))
-                    current_chunk = ""
+            content_length = self._length_function(content)
+            
+            # 超长block处理
+            if content_length > self.max_chunk_length:
+                if current_chunk_lines:
+                    self._flush_chunk(chunks, current_chunk_lines, cur_metadata, extra_metadata, index)
+                    index += 1
+                    current_chunk_lines = []
+                    current_length = 0
                     cur_metadata = {}
                 
-                # 分割超长block
                 split_parts = self._split_long_block(content)
                 for part in split_parts:
-                    # 如果有 id，在后面加上序号
-                    save_metadata = extra_metadata
-                    if 'id' in save_metadata:
-                        save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
-                        index += 1
-                    chunks.append(Document(
-                        page_content=current_chunk,
-                        metadata=save_metadata | block.metadata
-                    ))
+                    self._flush_chunk(chunks, [part], block.metadata, extra_metadata, index)
+                    index += 1
             else:
-                # 检查添加当前block是否会超过长度限制
-                if current_chunk and self._length_function(current_chunk) + self._length_function(content) > self.max_chunk_length:
-                    # 如果有 id，在后面加上序号
-                    save_metadata = extra_metadata
-                    if 'id' in save_metadata:
-                        save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
-                        index += 1
-                    chunks.append(Document(
-                        page_content=current_chunk,
-                        metadata=save_metadata | cur_metadata
-                    ))
-                    current_chunk = content
+                # 检查长度
+                if current_chunk_lines and (current_length + content_length) > self.max_chunk_length:
+                    self._flush_chunk(chunks, current_chunk_lines, cur_metadata, extra_metadata, index)
+                    index += 1
+                    current_chunk_lines = [content]
+                    current_length = content_length
                     cur_metadata = block.metadata
                 else:
-                    if current_chunk:
-                        current_chunk += content
-                        cur_metadata = self.merge_metadata(cur_metadata, block.metadata)
-                    else:
-                        current_chunk = content
-                        cur_metadata = block.metadata
+                    current_chunk_lines.append(content)
+                    current_length += content_length
+                    cur_metadata = self.merge_metadata(cur_metadata, block.metadata)
         
-        if current_chunk:
-            # 如果有 id，在后面加上序号
-            save_metadata = extra_metadata
-            if 'id' in save_metadata:
-                save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
-            chunks.append(Document(
-                page_content=current_chunk,
-                metadata=save_metadata | cur_metadata
-            ))
+        if current_chunk_lines:
+            self._flush_chunk(chunks, current_chunk_lines, cur_metadata, extra_metadata, index)
         
-        # 添加上下文
-        chunks_with_context = self._add_context(chunks)
+        return self._add_context(chunks)
+
+    def _flush_chunk(self, chunks, lines, metadata, extra_metadata, index):
+        """辅助方法：处理chunk的保存逻辑"""
+        content = "\n".join(lines)
+        save_metadata = extra_metadata.copy()
+        if 'id' in save_metadata:
+            save_metadata['id'] = f"{save_metadata['id']}_body_{index}"
+        chunks.append(Document(
+            page_content=content,
+            metadata={**save_metadata, **metadata}
+        ))
+    
+    # def merge_or_split_blocks(self, blocks: List[MarkdownLinesDoc], extra_metadata: Dict={}) -> List[Document]:
+    #     chunks = []
+    #     current_chunk = ""
+    #     cur_metadata = {}
+    #     index = 1
         
-        return chunks_with_context
+    #     for block in blocks:
+    #         content = "\n".join(block.content_lines)
+    #         # 如果block本身超过最大长度，需要分割
+    #         if self._length_function(content) > self.max_chunk_length:
+    #             if current_chunk:  # 先把当前积累的chunk保存
+    #                 # 如果有 id，在后面加上序号
+    #                 save_metadata = extra_metadata
+    #                 if 'id' in save_metadata:
+    #                     save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
+    #                     index += 1
+    #                 chunks.append(Document(
+    #                     page_content=current_chunk,
+    #                     metadata=save_metadata | cur_metadata
+    #                 ))
+    #                 current_chunk = ""
+    #                 cur_metadata = {}
+                
+    #             # 分割超长block
+    #             split_parts = self._split_long_block(content)
+    #             for part in split_parts:
+    #                 # 如果有 id，在后面加上序号
+    #                 save_metadata = extra_metadata
+    #                 if 'id' in save_metadata:
+    #                     save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
+    #                     index += 1
+    #                 chunks.append(Document(
+    #                     page_content=current_chunk,
+    #                     metadata=save_metadata | block.metadata
+    #                 ))
+    #         else:
+    #             # 检查添加当前block是否会超过长度限制
+    #             if current_chunk and self._length_function(current_chunk) + self._length_function(content) > self.max_chunk_length:
+    #                 # 如果有 id，在后面加上序号
+    #                 save_metadata = extra_metadata
+    #                 if 'id' in save_metadata:
+    #                     save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
+    #                     index += 1
+    #                 chunks.append(Document(
+    #                     page_content=current_chunk,
+    #                     metadata=save_metadata | cur_metadata
+    #                 ))
+    #                 current_chunk = content
+    #                 cur_metadata = block.metadata
+    #             else:
+    #                 if current_chunk:
+    #                     current_chunk += content
+    #                     cur_metadata = self.merge_metadata(cur_metadata, block.metadata)
+    #                 else:
+    #                     current_chunk = content
+    #                     cur_metadata = block.metadata
+        
+    #     if current_chunk:
+    #         # 如果有 id，在后面加上序号
+    #         save_metadata = extra_metadata
+    #         if 'id' in save_metadata:
+    #             save_metadata = save_metadata | {'id': save_metadata['id'] + "_body_" + str(index)}
+    #         chunks.append(Document(
+    #             page_content=current_chunk,
+    #             metadata=save_metadata | cur_metadata
+    #         ))
+        
+    #     # 添加上下文
+    #     chunks_with_context = self._add_context(chunks)
+        
+    #     return chunks_with_context
     
     def _split_long_block(self, block: str) -> List[str]:
         parts = []
@@ -263,7 +316,6 @@ class ArxivPandocMarkdownSplitter:
         with open(file_path, "r") as f:
             lines = f.readlines()
             return lines
-    
 
     # 只保留 page content 块，删除 logo
     def remove_logo_section(self, lines):
@@ -281,9 +333,9 @@ class ArxivPandocMarkdownSplitter:
     
     # 清除文中的 \hspace{0pt} \xa0 \u3000 \u2002 \u2003
     def clean_meaningless(self, line):
-        line = re.sub(r"\\hspace\{0pt\}", "", line).strip()
+        line = re.sub(r"\\hspace\{0pt\}", "", line)
         line = re.sub(r'[\xa0\u3000\u2002\u2003]', ' ', line)
-        line = line.strip(' \n')
+        line = line.strip('\n')
         return line
 
     # 递归切开所有块
@@ -299,22 +351,22 @@ class ArxivPandocMarkdownSplitter:
             if block_s is None:
                 # 如果是块开头
                 if line.startswith(":::"):
+                    # 保存之前的text_lines
                     if text_lines != []:
                         temp_lines = []
                         for temp_line in text_lines:
-                            temp_line = self.clean_meaningless(temp_line).strip()
                             if temp_line != '':
                                 temp_lines.append(temp_line)
-                        if text_lines != []:
-                            new_block = MarkdownLinesDoc({'block_path': ['/'.join(block_path)]}, temp_lines)
-                            if len(new_block.content_lines) != 0:
-                                lines_split.append(new_block)
+                        new_block = MarkdownLinesDoc({'block_path': ['/'.join(block_path)]}, temp_lines)
+                        if len(new_block.content_lines) != 0:
+                            lines_split.append(new_block)
                         text_lines = []
+                    # 记录位置和block path
                     block_s = re.search(r'(:::+)', line).group(1)
                     cur_path = re.sub(r'(:::+)', '', line).strip()
                     start_index = i + 1
                 # 如果是普通文本
-                elif line.strip() != '':
+                else:
                     text_lines.append(line)
             # 寻找块结尾
             elif block_s is not None and line.strip() == block_s:
@@ -326,12 +378,10 @@ class ArxivPandocMarkdownSplitter:
                     block_s = None
                 else:
                     block_s = None
-        
         # 处理块后文本        
         if text_lines != []:
             temp_lines = []
             for temp_line in text_lines:
-                temp_line = self.clean_meaningless(temp_line).strip()
                 if temp_line != '':
                     temp_lines.append(temp_line)
             if text_lines != []:
@@ -343,14 +393,92 @@ class ArxivPandocMarkdownSplitter:
 
     # 去除所有的 latexml 格式 []{#id |.ltx}
     def clean_latex_format(self, text):
+        pattern = r'!\[\]\(data:image/svg\+xml;base64,[^)]+\)'
+        replacement = '(img)'
+        text_1 = re.sub(pattern, replacement, text)
         pattern = r'\[(.*?)\]\{(?:\.|#)[^}]*\}'
         while True:
-            new_text = re.sub(pattern, r'\1', text)
-            if new_text == text:  # 如果没有变化，终止循环
+            new_text = re.sub(pattern, r'\1', text_1)
+            if new_text == text_1:  # 如果没有变化，终止循环
                 break
-            text = new_text
-        text = re.sub(r'\{#[^}]*\}', '', text)
-        return text
+            text_1 = new_text
+        text_2 = re.sub(r'\{[.#][^}]*\}', '', text_1)
+        text_3 = re.sub(r"\\\\.*{.*}", "", text_2)
+        return text_3
+    
+    def table_clean(self, pre_table, table_mark, post_table):
+        # 获取开头空格
+        prefix_space = re.search("(^\s*)", table_mark).group(1)
+        # 分割表格标识符
+        table_mark_split = re.sub("^\s*", "", table_mark).split(' ')
+        # 准备遍历
+        table_length_new = [0 for _ in table_mark_split]
+        pre_table_lines = []
+        post_table_lines = []
+        # 如果没有前半部分，那就说明有后表格标识符
+        if pre_table == []:
+            post_table = post_table[:-1]
+        # 处理前半部分，清理格式，记录单元格最大长度
+        for line in pre_table:
+            if len(line.strip()) == 0:
+                continue
+            items = []
+            start_index = len(prefix_space)
+            for index, split_mark in enumerate(table_mark_split):
+                end_index = start_index + len(split_mark)
+                item = self.clean_latex_format(self.clean_meaningless(line[start_index: end_index])).strip()
+                table_length_new[index] = max(table_length_new[index], len(item)+2)
+                start_index = end_index + 1
+                items.append(item)
+            pre_table_lines.append(items)
+        # 后半部分
+        for line in post_table:
+            if len(line.strip()) == 0:
+                continue
+            items = []
+            start_index = len(prefix_space)
+            for index, split_mark in enumerate(table_mark_split):
+                end_index = start_index + len(split_mark)
+                item = self.clean_latex_format(self.clean_meaningless(line[start_index: end_index])).strip()
+                table_length_new[index] = max(table_length_new[index], len(item)+2)
+                start_index = end_index + 1
+                items.append(item)
+            post_table_lines.append(items)
+        
+        # 删除没有内容的标识符
+        table_length_clean = []
+        for length in table_length_new:
+            if length > 2:
+                table_length_clean.append(length)
+        table_sign = prefix_space + ' '.join(['-'*x for x in table_length_clean])
+        
+        
+        result_table_lines = []
+        for line in pre_table_lines:
+            new_items = []
+            for index, item in enumerate(line):
+                length = table_length_new[index]
+                if length <= 2:
+                    continue
+                else:
+                    new_items.append(item + ' '*(length-len(item)))
+            new_line = prefix_space + ' '.join(new_items)
+            result_table_lines.append(new_line)
+        result_table_lines.append(table_sign)
+        for line in post_table_lines:
+            new_items = []
+            for index, item in enumerate(line):
+                length = table_length_new[index]
+                if length <= 2:
+                    continue
+                else:
+                    new_items.append(item + ' '*(length-len(item)))
+            new_line = prefix_space + ' '.join(new_items)
+            result_table_lines.append(new_line)
+        # 如果没有前半部分，那就说明有后表格标识符
+        if pre_table == []:
+            result_table_lines.append(table_sign)
+        return result_table_lines
 
     # 解析切分后的 blocks
     def resolve_blocks(self, blocks, file_path):
@@ -414,16 +542,16 @@ class ArxivPandocMarkdownSplitter:
                 # 在内容中找 title、author、abstract 等
                 for data in block.content_lines:
                     if title == '' and re.search(self.re_patterns['title_key'], data) is not None:
-                        title = re.sub(r'#', '', self.clean_latex_format(data)).strip()
+                        title = re.sub(r'#', '', self.clean_latex_format(self.clean_meaningless(data))).strip()
                     if abstract == '':
                         for pattern in self.re_patterns['abstract_key']:
                             if re.search(pattern, data):
                                 abs_index = i
                                 abs_path = block.metadata['block_path'][0]
-                                abstract += self.clean_latex_format(data).strip()
+                                abstract += self.clean_latex_format(self.clean_meaningless(data)).strip()
                     elif abs_index != -1:
                         if block.metadata['block_path'][0].startswith(abs_path):
-                            abstract += '\n' + self.clean_latex_format(data).strip()
+                            abstract += '\n' + self.clean_latex_format(self.clean_meaningless(data)).strip()
                             abs_index = i
         
         # 如果从内容中找到了摘要，保存摘要最后的位置
@@ -434,7 +562,7 @@ class ArxivPandocMarkdownSplitter:
         split_index = max(avail_abs_index, title_page_end_index, Intro_index, meta_index)
 
         # 如果已经有摘要了就清洗一下，与后面保持对齐
-        abstract = self.clean_latex_format(abstract).strip()
+        abstract = self.clean_latex_format(self.clean_meaningless(abstract)).strip()
 
         # 如果能通过 摘要 之外的途径确定分割点，且 摘要 还没找到，
         # 那就从切分点之前按更细致的逻辑筛一遍
@@ -443,11 +571,11 @@ class ArxivPandocMarkdownSplitter:
             if abstract == '' and meta_index != -1:
                 for i in range(meta_index, split_index):
                     for line in blocks[i].content_lines:
-                        abstract += self.clean_latex_format(line).strip() + '\n'
+                        abstract += self.clean_latex_format(self.clean_meaningless(line)).strip() + '\n'
             elif abs_index != -1 and len(abstract) > 0 and len(abstract) <= 16:
                 for i in range(abs_index + 1, split_index):
                     for line in blocks[i].content_lines:
-                        abstract += '\n' + self.clean_latex_format(line).strip()
+                        abstract += '\n' + self.clean_latex_format(self.clean_meaningless(line)).strip()
 
         # 筛标题 找 最早的加粗字体 和 最早的最大字体 他们中最大的就是标题
         if title == '':
@@ -493,7 +621,7 @@ class ArxivPandocMarkdownSplitter:
                 lines = []
                 for indexes in final_indexes:
                     line = blocks[indexes[0]].content_lines[indexes[1]]
-                    line = self.clean_latex_format(line).strip()
+                    line = self.clean_latex_format(self.clean_meaningless(line)).strip()
                     lines.append(line)
                     split_index = indexes[0]
                 title = " ".join(lines).strip()
@@ -503,6 +631,45 @@ class ArxivPandocMarkdownSplitter:
             main_body_blocks = blocks[split_index:]
         else:
             main_body_blocks = blocks
+
+        # 清洗正文
+        for block in main_body_blocks:
+            block_lines = []
+
+            line_index = 0
+            while line_index < len(block.content_lines):
+                line = block.content_lines[line_index]
+                # 找到表格
+                if re.match(r'^[\s]*--+', line) is not None:
+                    # 回头找前面的
+                    table_mark = line
+                    split_index = len(block_lines)
+                    for j in range(len(block_lines), 0, -1):
+                        if block_lines[j-1] != '':
+                            split_index -= 1
+                        else:
+                            break
+                    pre_table = block_lines[split_index:]
+                    block_lines = block_lines[:split_index]
+                    # 找后面的
+                    line_index += 1
+                    post_table = []
+                    if pre_table == []:
+                        while line_index < len(block.content_lines) and not re.match(r'^[\s]*--+', (line := block.content_lines[line_index])):
+                            post_table.append(line)
+                            line_index += 1
+                        post_table.append(block.content_lines[line_index])
+                        line_index += 1
+                    else:
+                        while line_index < len(block.content_lines) and (line := block.content_lines[line_index]) != '\n':
+                            post_table.append(line)
+                            line_index += 1
+                    block_lines.extend(self.table_clean(pre_table, table_mark, post_table))
+                else:
+                    block_lines.append(self.clean_latex_format(self.clean_meaningless(line)))
+                    line_index += 1
+            # 更新
+            block.content_lines = block_lines
         
         file_id = re.sub(r"\.md", "", file_path.rsplit('/', 1)[-1])
 
@@ -517,10 +684,10 @@ class ArxivPandocMarkdownSplitter:
             "file_id": file_id,
             "publish_time": publish_time,
             "title": title,
-            "author": self.clean_latex_format(author).strip(),
-            "dates": self.clean_latex_format(dates).strip(),
-            "keywords": self.clean_latex_format(keywords).strip(),
-            "acknowledgements": self.clean_latex_format(acknowledgements).strip(),
+            "author": self.clean_latex_format(self.clean_meaningless(author)).strip(),
+            "dates": self.clean_latex_format(self.clean_meaningless(dates)).strip(),
+            "keywords": self.clean_latex_format(self.clean_meaningless(keywords)).strip(),
+            "acknowledgements": self.clean_latex_format(self.clean_meaningless(acknowledgements)).strip(),
             "raw_info": raw_info,
         }
 
@@ -728,7 +895,7 @@ if __name__ == "__main__":
         context_length = 200,
         separators = [" ", ""],
     )
-    splitter.process("arxiv/process_script/markdown2embeddings/example_markdown/__ok/metaresolve/title/math9805118.md")
+    splitter.process("/RLS002/Public/arxiv/process_script/markdown2embeddings/example_markdown/failed/2401.17357/2401.17357.md")
 
     # # 批量测试
     # path = "arxiv/process_script/markdown2embeddings/example_markdown/__ok/metaresolve"
